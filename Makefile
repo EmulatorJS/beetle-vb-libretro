@@ -558,7 +558,11 @@ all: $(TARGET)
 ifeq ($(DEBUG),1)
    FLAGS += -O0 -g
 else
+ifeq ($(platform), emscripten)
+   FLAGS += -O3 -DNDEBUG $(EXTRA_GCC_FLAGS)
+else
    FLAGS += -O2 -DNDEBUG $(EXTRA_GCC_FLAGS)
+endif
 endif
 
 ifneq (,$(findstring msvc,$(platform)))
@@ -597,9 +601,7 @@ else
 endif
 
 $(TARGET): $(OBJECTS)
-ifeq ($(platform), emscripten)
-	$(CXX) $(CXXFLAGS) $(OBJOUT)$@ $^
-else ifeq ($(STATIC_LINKING), 1)
+ifeq ($(STATIC_LINKING), 1)
 	$(AR) rcs $@ $(OBJECTS)
 else
 	$(LD) $(LINKOUT)$@ $^ $(LDFLAGS)
